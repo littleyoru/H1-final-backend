@@ -4,15 +4,18 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using TimeRegistration.Models;
 
 namespace TimeRegistration.Controllers
 {
     public class ValuesController : ApiController
     {
+        private TimeRegistrationEntities db = new TimeRegistrationEntities();
+
         // GET api/values
-        public IEnumerable<string> Get()
+        public IEnumerable<Employee> Get()
         {
-            return new string[] { "value1", "value2" };
+            return db.Employees.ToList();
         }
 
         // GET api/values/5
