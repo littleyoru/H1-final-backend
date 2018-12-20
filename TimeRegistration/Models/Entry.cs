@@ -11,6 +11,7 @@ namespace TimeRegistration.Models
 {
     using System;
     using System.Collections.Generic;
+    using TimeRegistration.Enums;
     
     public partial class Entry
     {
