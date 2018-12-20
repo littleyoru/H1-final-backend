@@ -100,34 +100,59 @@ namespace TimeRegistration.Controllers
         }
 
         // POST: api/Employee
+        [HttpPost]
+        [Route("Employee/Post")]
         [ResponseType(typeof(Employee))]
-        public IHttpActionResult PostEmployee(Employee employee)
+        public HttpResponseMessage PostEmployee([FromBody]EmployeeDetail employee)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var result = new Employee();
+                result.FirstName = employee.FirstName;
+                result.LastName = employee.LastName;
+                result.Age = employee.Age;
+                result.DateOfEmployment = employee.DateOfEmployment;
+                result.DateOfEndEmployment = employee.DateOfEndEmployment;
+
+                db.Employees.Add(result);
+                db.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, result);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
-            db.Employees.Add(employee);
-            db.SaveChanges();
-
-            return CreatedAtRoute("DefaultApi", new { id = employee.Id }, employee);
+            // return CreatedAtRoute("DefaultApi", new { id = employee.Id }, employee);
         }
 
         // DELETE: api/Employee/5
+        [HttpPost]
+        [Route("Employee/Delete/{id}")]
         [ResponseType(typeof(Employee))]
-        public IHttpActionResult DeleteEmployee(int id)
+        public HttpResponseMessage DeleteEmployee(int id)
         {
-            Employee employee = db.Employees.Find(id);
-            if (employee == null)
+            try
             {
-                return NotFound();
+                var employee = db.Employees.Find(id);
+                if (employee == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Employee does not exist!");
+                }
+                else
+                {
+                    db.Employees.Remove(employee);
+                    db.SaveChanges();
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK, employee);
             }
-
-            db.Employees.Remove(employee);
-            db.SaveChanges();
-
-            return Ok(employee);
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+            
         }
 
         protected override void Dispose(bool disposing)
@@ -142,6 +167,17 @@ namespace TimeRegistration.Controllers
         private bool EmployeeExists(int id)
         {
             return db.Employees.Count(e => e.Id == id) > 0;
+        }
+
+        public class EmployeeDetail
+        {
+            //public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public int? Age { get; set; }
+            public int Position { get; set; }
+            public DateTime DateOfEmployment { get; set; }
+            public DateTime? DateOfEndEmployment { get; set; }
         }
     }
 }

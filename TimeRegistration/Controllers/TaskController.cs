@@ -18,6 +18,7 @@ namespace TimeRegistration.Controllers
         private TimeRegistrationEntities db = new TimeRegistrationEntities();
 
         // GET: api/Task
+        [AllowAnonymous]
         [HttpGet]
         [Route("Tasks")]
         [ResponseType(typeof(List<Task>))]
@@ -36,6 +37,7 @@ namespace TimeRegistration.Controllers
         }
 
         // GET: api/Task/5
+        [AllowAnonymous]
         [HttpGet]
         [Route("Task/Get/{id}")]
         [ResponseType(typeof(Task))]
@@ -100,34 +102,67 @@ namespace TimeRegistration.Controllers
         }
 
         // POST: api/Task
+        [HttpPost]
+        [Route("Task/Post")]
         [ResponseType(typeof(Task))]
-        public IHttpActionResult PostTask(Task task)
+        public HttpResponseMessage PostTask([FromBody]TaskDetail task)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var result = new Task();
+                result.TaskName = task.TaskName;
+                result.HoursEstimated = task.HoursEstimated;
+                result.Status = task.Status;
+
+                // persist data 
+                db.Tasks.Add(result);
+                db.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, result);
             }
-
-            db.Tasks.Add(task);
-            db.SaveChanges();
-
-            return CreatedAtRoute("DefaultApi", new { id = task.Id }, task);
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
+        //public IHttpActionResult PostTask(Task task)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    db.Tasks.Add(task);
+        //    db.SaveChanges();
+
+        //    return CreatedAtRoute("DefaultApi", new { id = task.Id }, task);
+        //}
 
         // DELETE: api/Task/5
+        [HttpPost]
+        [Route("Task/Delete/{id}")]
         [ResponseType(typeof(Task))]
-        public IHttpActionResult DeleteTask(int id)
+        public HttpResponseMessage DeleteTask(int id)
         {
-            Task task = db.Tasks.Find(id);
-            if (task == null)
+            try
             {
-                return NotFound();
+                var result = db.Tasks.Where(x => x.Id == id).FirstOrDefault();
+                if (result == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Task does not exit!");
+                }
+                else
+                {
+                    db.Tasks.Remove(result);
+                    db.SaveChanges();
+
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
+                }
             }
-
-            db.Tasks.Remove(task);
-            db.SaveChanges();
-
-            return Ok(task);
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -142,6 +177,14 @@ namespace TimeRegistration.Controllers
         private bool TaskExists(int id)
         {
             return db.Tasks.Count(e => e.Id == id) > 0;
+        }
+
+        public class TaskDetail
+        {
+            // public int TaskId { get; set; }
+            public string TaskName { get; set; }
+            public int HoursEstimated { get; set; }
+            public int Status { get; set; }
         }
     }
 }

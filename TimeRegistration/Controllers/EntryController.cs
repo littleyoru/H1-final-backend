@@ -37,7 +37,7 @@ namespace TimeRegistration.Controllers
 
         // GET: api/Entry/5
         [HttpGet]
-        [Route("Task/Get/{id}")]
+        [Route("Entry/Get/{id}")]
         [ResponseType(typeof(Entry))]
         public HttpResponseMessage GetEntry(int id)
         {
@@ -93,34 +93,63 @@ namespace TimeRegistration.Controllers
         }
 
         // POST: api/Entry
+        [HttpPost]
+        [Route("Entry/Post")]
         [ResponseType(typeof(Entry))]
-        public IHttpActionResult PostEntry(Entry entry)
+        public HttpResponseMessage PostEntry([FromBody]EntryDetail entry)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var result = new Entry();
+                result.Hours = entry.Hours;
+                result.DateOfEntry = entry.DateOfEntry;
+                result.Message = entry.Message;
+                result.AbsenceReason = entry.AbsenceReason;
+
+                // redundancy.. to be fixed later
+                result.EmployeeId = entry.EmployeeId;
+                result.TaskId = entry.TaskId;
+
+                result.Employee = db.Employees.Where(x => x.Id == entry.EmployeeId).FirstOrDefault();
+                result.Task = db.Tasks.Where(x => x.Id == entry.TaskId).FirstOrDefault();
+
+                // persist data
+                db.Entries.Add(result);
+                db.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, result);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
-            db.Entries.Add(entry);
-            db.SaveChanges();
-
-            return CreatedAtRoute("DefaultApi", new { id = entry.Id }, entry);
+            // return CreatedAtRoute("DefaultApi", new { id = entry.Id }, entry);
         }
 
         // DELETE: api/Entry/5
+        [HttpPost]
+        [Route("Entry/Delete/{id}")]
         [ResponseType(typeof(Entry))]
-        public IHttpActionResult DeleteEntry(int id)
+        public HttpResponseMessage DeleteEntry(int id)
         {
-            Entry entry = db.Entries.Find(id);
-            if (entry == null)
+            try
             {
-                return NotFound();
+                Entry entry = db.Entries.Find(id);
+                if (entry == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Entry was not found!");
+                }
+
+                db.Entries.Remove(entry);
+                db.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, entry);
             }
-
-            db.Entries.Remove(entry);
-            db.SaveChanges();
-
-            return Ok(entry);
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -135,6 +164,20 @@ namespace TimeRegistration.Controllers
         private bool EntryExists(int id)
         {
             return db.Entries.Count(e => e.Id == id) > 0;
+        }
+
+        public class EntryDetail
+        {
+            //public int Id { get; set; }
+            public int Hours { get; set; }
+            public DateTime DateOfEntry { get; set; }
+            public int? AbsenceReason { get; set; }
+            public string Message { get; set; }
+            public int EmployeeId { get; set; }
+            public int? TaskId { get; set; }
+
+            //public virtual Employee Employee { get; set; }
+            //public virtual Task Task { get; set; }
         }
     }
 }
