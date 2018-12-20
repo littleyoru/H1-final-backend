@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
 using TimeRegistration.Models;
+using TimeRegistration.Enums;
 
 namespace TimeRegistration.Controllers
 {
@@ -18,6 +19,7 @@ namespace TimeRegistration.Controllers
         private TimeRegistrationEntities db = new TimeRegistrationEntities();
 
         // GET: api/Entry
+        [AllowAnonymous]
         [HttpGet]
         [Route("Entries")]
         [ResponseType(typeof(List<Entry>))]
@@ -36,6 +38,7 @@ namespace TimeRegistration.Controllers
         }
 
         // GET: api/Entry/5
+        [AllowAnonymous]
         [HttpGet]
         [Route("Entry/Get/{id}")]
         [ResponseType(typeof(Entry))]
@@ -93,6 +96,7 @@ namespace TimeRegistration.Controllers
         }
 
         // POST: api/Entry
+        [AllowAnonymous]
         [HttpPost]
         [Route("Entry/Post")]
         [ResponseType(typeof(Entry))]
@@ -104,7 +108,31 @@ namespace TimeRegistration.Controllers
                 result.Hours = entry.Hours;
                 result.DateOfEntry = entry.DateOfEntry;
                 result.Message = entry.Message;
-                result.AbsenceReason = entry.AbsenceReason;
+                // TO DO - include enums in entities
+                switch (entry.AbsenceReason)
+                {
+                    case "None":
+                        result.AbsenceReason = (int)AbsenceReason.None;
+                        break;
+                    case "Sickness":
+                        result.AbsenceReason = (int)AbsenceReason.Sickness;
+                        break;
+                    case "Doctor":
+                        result.AbsenceReason = (int)AbsenceReason.DoctorTime;
+                        break;
+                    case "VacationPayed":
+                        result.AbsenceReason = (int)AbsenceReason.VacationPayed;
+                        break;
+                    case "VacationNotPayed":
+                        result.AbsenceReason = (int)AbsenceReason.VacationNotPayed;
+                        break;
+                    case "Other":
+                        result.AbsenceReason = (int)AbsenceReason.Other;
+                        break;
+                    default:
+                        result.AbsenceReason = (int)AbsenceReason.None;
+                        break;
+                }
 
                 // redundancy.. to be fixed later
                 result.EmployeeId = entry.EmployeeId;
@@ -128,6 +156,7 @@ namespace TimeRegistration.Controllers
         }
 
         // DELETE: api/Entry/5
+        [AllowAnonymous]
         [HttpPost]
         [Route("Entry/Delete/{id}")]
         [ResponseType(typeof(Entry))]
@@ -171,7 +200,7 @@ namespace TimeRegistration.Controllers
             //public int Id { get; set; }
             public int Hours { get; set; }
             public DateTime DateOfEntry { get; set; }
-            public int? AbsenceReason { get; set; }
+            public string AbsenceReason { get; set; }
             public string Message { get; set; }
             public int EmployeeId { get; set; }
             public int? TaskId { get; set; }

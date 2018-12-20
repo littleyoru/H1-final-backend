@@ -28,6 +28,7 @@ namespace TimeRegistration.Controllers
             try
             {
                 result = db.Tasks.ToList();
+                Request.Headers.Add("Access-Control-Allow-Origin", "*");
                 return Request.CreateResponse(HttpStatusCode.OK, result);
             }
             catch (Exception ex)
@@ -102,6 +103,7 @@ namespace TimeRegistration.Controllers
         }
 
         // POST: api/Task
+        [AllowAnonymous]
         [HttpPost]
         [Route("Task/Post")]
         [ResponseType(typeof(Task))]
@@ -139,6 +141,7 @@ namespace TimeRegistration.Controllers
         //}
 
         // DELETE: api/Task/5
+        [AllowAnonymous]
         [HttpPost]
         [Route("Task/Delete/{id}")]
         [ResponseType(typeof(Task))]

@@ -18,6 +18,7 @@ namespace TimeRegistration.Controllers
         private TimeRegistrationEntities db = new TimeRegistrationEntities();
 
         // GET: api/Employee
+        [AllowAnonymous]
         [HttpGet]
         [Route("Employees")]
         [ResponseType(typeof(List<Employee>))]
@@ -38,6 +39,7 @@ namespace TimeRegistration.Controllers
         }
 
         // GET: api/Employee/5
+        [AllowAnonymous]
         [HttpGet]
         [Route("Employee/Get/{id}")]
         [ResponseType(typeof(Employee))]
@@ -100,6 +102,7 @@ namespace TimeRegistration.Controllers
         }
 
         // POST: api/Employee
+        [AllowAnonymous]
         [HttpPost]
         [Route("Employee/Post")]
         [ResponseType(typeof(Employee))]
@@ -128,6 +131,7 @@ namespace TimeRegistration.Controllers
         }
 
         // DELETE: api/Employee/5
+        [AllowAnonymous]
         [HttpPost]
         [Route("Employee/Delete/{id}")]
         [ResponseType(typeof(Employee))]
