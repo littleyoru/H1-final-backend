@@ -28,7 +28,7 @@ namespace TimeRegistration.Controllers
             try
             {
                 result = db.Tasks.ToList();
-                Request.Headers.Add("Access-Control-Allow-Origin", "*");
+                // Request.Headers.Add("Access-Control-Allow-Origin", "*");
                 return Request.CreateResponse(HttpStatusCode.OK, result);
             }
             catch (Exception ex)

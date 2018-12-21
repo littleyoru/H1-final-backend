@@ -99,7 +99,7 @@ namespace TimeRegistration.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("Entry/Post")]
-        [ResponseType(typeof(string))]
+        [ResponseType(typeof(void))]
         public HttpResponseMessage PostEntry([FromBody]EntryDetail entry)
         {
             try
@@ -145,7 +145,7 @@ namespace TimeRegistration.Controllers
                 db.Entries.Add(result);
                 db.SaveChanges();
 
-                return Request.CreateResponse(HttpStatusCode.OK, "Entry saved");
+                return Request.CreateResponse(HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
